@@ -17,14 +17,17 @@ exports.register = async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({
         success: false,
-        message: 'Database connection is still establishing. Please wait a few seconds and try again.'
+        message: 'Database is connecting. Please wait a moment and try again.'
       });
     }
 
     const cleanEmail = (email || '').toLowerCase().trim();
-    const userExists = await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } });
+    if (!cleanEmail) return res.status(400).json({ success: false, message: 'Email is required.' });
+    if (!password || password.length < 6) return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists with this email' });
+      return res.status(400).json({ success: false, message: 'User already exists with this email.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -75,36 +78,30 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide both email and password' });
+      return res.status(400).json({ success: false, message: 'Please provide both email and password.' });
     }
 
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({
         success: false,
-        message: 'Database connection is still establishing. Please wait a few seconds and try again.'
+        message: 'Database is connecting. Please wait a moment and try again.'
       });
     }
 
+    // Normalize — User schema has { lowercase: true, trim: true } so stored emails are always lowercase
     const cleanEmail = email.toLowerCase().trim();
-    const cleanPassword = typeof password === 'string' ? password.trim() : String(password);
 
-    // Fast indexed query
-    const user = await User.findOne({
-      $or: [
-        { email: cleanEmail },
-        { email: email.trim() }
-      ]
-    })
+    const user = await User.findOne({ email: cleanEmail })
       .populate('studentRef', '-password')
       .populate('parentRef', '-password');
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    const isMatch = (await bcrypt.compare(cleanPassword, user.password)) || (await bcrypt.compare(password, user.password));
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
     res.json({
@@ -150,7 +147,7 @@ exports.updateProfile = async (req, res) => {
 
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
     if (name) user.name = name;
@@ -164,16 +161,16 @@ exports.updateProfile = async (req, res) => {
     // Password change request
     if (newPassword) {
       if (!currentPassword) {
-        return res.status(400).json({ success: false, message: 'Please provide current password to set a new password' });
+        return res.status(400).json({ success: false, message: 'Please provide current password to set a new password.' });
       }
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+        return res.status(400).json({ success: false, message: 'Current password is incorrect.' });
       }
 
       if (newPassword.length < 6) {
-        return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+        return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -196,4 +193,3 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

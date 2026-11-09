@@ -4,6 +4,7 @@
   flex-direction: column;
 }
 
+/* Used for Login/Register (centered small form) */
 .auth-content {
   flex: 1;
   display: flex;
@@ -11,6 +12,7 @@
   justify-content: center;
 }
 
+/* Used for authenticated pages with Navbar */
 .main-content {
   flex: 1;
   max-width: 1320px;
