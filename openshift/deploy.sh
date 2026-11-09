@@ -24,3 +24,4 @@ oc apply -f openshift/deployment.yaml
 echo "All OpenShift resources applied successfully!"
 echo "Check build status with: oc logs -f bc/classroom-portal"
 echo "Check route URL with:    oc get route classroom-portal"
+

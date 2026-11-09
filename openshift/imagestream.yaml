@@ -7,3 +7,4 @@ metadata:
 spec:
   lookupPolicy:
     local: true
+
