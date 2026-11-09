@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,7 +14,15 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password, role, rollNumber, phone, gradeClass, studentRef, parentRef, department, designation } = req.body;
 
-    const userExists = await User.findOne({ email });
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection is still establishing. Please wait a few seconds and try again.'
+      });
+    }
+
+    const cleanEmail = (email || '').toLowerCase().trim();
+    const userExists = await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
@@ -23,7 +32,7 @@ exports.register = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      email: cleanEmail,
       password: hashedPassword,
       role: role || 'teacher',
       rollNumber: rollNumber || '',
@@ -69,7 +78,15 @@ exports.login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide both email and password' });
     }
 
-    const user = await User.findOne({ email })
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection is still establishing. Please wait a few seconds and try again.'
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } })
       .populate('studentRef', '-password')
       .populate('parentRef', '-password');
     if (!user) {

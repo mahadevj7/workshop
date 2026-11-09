@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build React Frontend
 # ==========================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 
 COPY frontend/package*.json ./
@@ -13,7 +13,7 @@ RUN npm run build
 # ==========================================
 # Stage 2: Build Production Backend
 # ==========================================
-FROM node:20-alpine AS backend-builder
+FROM node:20-slim AS backend-builder
 WORKDIR /app/backend
 
 COPY backend/package*.json ./
@@ -22,7 +22,7 @@ RUN npm install --omit=dev
 # ==========================================
 # Stage 3: Final Production Runner (OpenShift Compliant)
 # ==========================================
-FROM node:20-alpine
+FROM node:20-slim
 WORKDIR /app
 
 # Red Hat OpenShift Security Context: Support arbitrary UIDs in group 0

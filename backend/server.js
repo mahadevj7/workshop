@@ -17,6 +17,40 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Database readiness check middleware for API requests
+app.use('/api', async (req, res, next) => {
+  // Always permit health checks to pass through
+  if (req.path === '/health') return next();
+
+  // If connected, pass immediately
+  if (mongoose.connection.readyState === 1) return next();
+
+  // If connecting, wait briefly (up to 3.5s) for it to finalize
+  if (mongoose.connection.readyState === 2) {
+    let waited = 0;
+    while (waited < 3500 && mongoose.connection.readyState === 2) {
+      await new Promise(r => setTimeout(r, 350));
+      waited += 350;
+    }
+    if (mongoose.connection.readyState === 1) return next();
+  } else {
+    // If disconnected, trigger reconnection and wait briefly
+    connectDB();
+    let waited = 0;
+    while (waited < 3000 && mongoose.connection.readyState !== 1) {
+      await new Promise(r => setTimeout(r, 350));
+      waited += 350;
+    }
+    if (mongoose.connection.readyState === 1) return next();
+  }
+
+  // If still not ready, return fast 503 instead of 10-second Mongoose buffer timeout
+  return res.status(503).json({
+    success: false,
+    message: 'Database connection to MongoDB Atlas is establishing. Please wait a few seconds and try again.'
+  });
+});
+
 // Routes Mount
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
