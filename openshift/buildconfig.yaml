@@ -1,0 +1,23 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: classroom-portal
+  labels:
+    app: classroom-portal
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: classroom-portal:latest
+  source:
+    type: Git
+    git:
+      uri: https://github.com/CHANGE_TO_YOUR_USERNAME/classroom-portal.git
+      ref: main
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
