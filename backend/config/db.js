@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 
 const DEFAULT_ATLAS_URI = 'mongodb+srv://mahadevjayan4_db_user:8nGOHuXEOfgsuuzT@cluster0.aqatdrz.mongodb.net/classroom_db?retryWrites=true&w=majority';
+// Direct standard connection URI (bypasses DNS SRV lookups entirely if SRV fails in cloud containers)
+const DIRECT_ATLAS_URI = 'mongodb://mahadevjayan4_db_user:8nGOHuXEOfgsuuzT@ac-ytuzh70-shard-00-00.aqatdrz.mongodb.net:27017,ac-ytuzh70-shard-00-01.aqatdrz.mongodb.net:27017,ac-ytuzh70-shard-00-02.aqatdrz.mongodb.net:27017/classroom_db?ssl=true&authSource=admin&retryWrites=true&w=majority';
 
 let isConnecting = false;
 
 const cleanUri = (uri) => {
-  if (!uri) return DEFAULT_ATLAS_URI;
+  if (!uri || uri.trim() === '' || uri.includes('127.0.0.1') || uri.includes('localhost')) {
+    return DEFAULT_ATLAS_URI;
+  }
   return uri.trim().replace(/^["']|["']$/g, '');
 };
 
@@ -66,14 +70,16 @@ const connectDB = async (retryCount = 0) => {
   const mongoUri = cleanUri(process.env.MONGO_URI);
   isConnecting = true;
 
+  const connectionOptions = {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    family: 4 // Force IPv4
+  };
+
   try {
     console.log(`[DB] Attempting MongoDB connection (attempt ${retryCount + 1})...`);
-    const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      family: 4 // Force IPv4 to prevent IPv6 DNS routing issues on cloud containers
-    });
+    const conn = await mongoose.connect(mongoUri, connectionOptions);
 
     console.log(`✅ [DB] MongoDB Connected Successfully: ${conn.connection.host}`);
     isConnecting = false;
@@ -81,17 +87,28 @@ const connectDB = async (retryCount = 0) => {
     // Run auto-seed check in background
     autoSeedIfEmpty();
     return true;
-  } catch (error) {
-    isConnecting = false;
-    console.error(`❌ [DB] Connection Error: ${error.message}`);
+  } catch (primaryError) {
+    console.warn(`⚠️ [DB] Primary connection failed (${primaryError.message}). Attempting direct replicaSet fallback...`);
 
-    // Auto-retry every 4 seconds in the background so it never stays disconnected
-    const nextRetry = retryCount + 1;
-    console.log(`[DB] Scheduling reconnection attempt in 4 seconds (attempt ${nextRetry + 1})...`);
-    setTimeout(() => {
-      connectDB(nextRetry);
-    }, 4000);
-    return false;
+    try {
+      // Direct standard replica set fallback (no SRV DNS required)
+      const fallbackConn = await mongoose.connect(DIRECT_ATLAS_URI, connectionOptions);
+      console.log(`✅ [DB] MongoDB Connected Successfully via Direct Fallback: ${fallbackConn.connection.host}`);
+      isConnecting = false;
+      autoSeedIfEmpty();
+      return true;
+    } catch (fallbackError) {
+      isConnecting = false;
+      console.error(`❌ [DB] Both connection methods failed: ${fallbackError.message}`);
+
+      // Auto-retry every 4 seconds in the background
+      const nextRetry = retryCount + 1;
+      console.log(`[DB] Scheduling reconnection attempt in 4 seconds (attempt ${nextRetry + 1})...`);
+      setTimeout(() => {
+        connectDB(nextRetry);
+      }, 4000);
+      return false;
+    }
   }
 };
 

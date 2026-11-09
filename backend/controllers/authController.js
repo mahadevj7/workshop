@@ -86,14 +86,23 @@ exports.login = async (req, res) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } })
+    const cleanPassword = typeof password === 'string' ? password.trim() : String(password);
+
+    // Fast indexed query
+    const user = await User.findOne({
+      $or: [
+        { email: cleanEmail },
+        { email: email.trim() }
+      ]
+    })
       .populate('studentRef', '-password')
       .populate('parentRef', '-password');
+
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = (await bcrypt.compare(cleanPassword, user.password)) || (await bcrypt.compare(password, user.password));
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }

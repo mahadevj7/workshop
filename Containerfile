@@ -30,9 +30,11 @@ RUN mkdir -p /app/backend /app/frontend/dist && \
     chgrp -R 0 /app && \
     chmod -R g=u /app
 
-# Copy production backend dependencies and source
-COPY --from=backend-builder /app/backend/node_modules /app/backend/node_modules
+# Copy production backend source first
 COPY backend/ /app/backend/
+
+# Copy production dependencies from builder on top
+COPY --from=backend-builder /app/backend/node_modules /app/backend/node_modules
 
 # Copy built frontend assets
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
