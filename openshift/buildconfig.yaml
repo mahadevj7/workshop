@@ -12,7 +12,7 @@ spec:
   source:
     type: Git
     git:
-      uri: https://github.com/CHANGE_TO_YOUR_USERNAME/classroom-portal.git
+      uri: https://github.com/mahadevj7/workshop.git
       ref: main
   strategy:
     type: Docker
@@ -21,3 +21,4 @@ spec:
   triggers:
     - type: ConfigChange
     - type: ImageChange
+
