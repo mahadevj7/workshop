@@ -39,9 +39,11 @@ COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 WORKDIR /app/backend
 
-# Default OpenShift port
+# Default OpenShift environment variables
 ENV PORT=8080
 ENV NODE_ENV=production
+ENV MONGO_URI="mongodb+srv://mahadevjayan4_db_user:8nGOHuXEOfgsuuzT@cluster0.aqatdrz.mongodb.net/classroom_db?retryWrites=true&w=majority"
+ENV JWT_SECRET="classroom_secret_jwt_key_2026_super_secure"
 
 EXPOSE 8080
 
@@ -49,4 +51,3 @@ EXPOSE 8080
 USER 1001
 
 CMD ["node", "server.js"]
-
