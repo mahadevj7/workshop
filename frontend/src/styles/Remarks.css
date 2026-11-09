@@ -1,0 +1,88 @@
+.remarks-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.remarks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.remark-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.remark-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.06);
+}
+
+.remark-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.remark-student-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.remark-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.remark-date {
+  font-size: 0.775rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.remark-body-text {
+  font-size: 0.925rem;
+  color: #334155;
+  line-height: 1.55;
+  background-color: #f8fafc;
+  border-left: 3px solid #3b82f6;
+  padding: 0.85rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+.remark-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  font-size: 0.825rem;
+  color: #64748b;
+}
+
+.remark-author-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.author-icon {
+  color: #2563eb;
+}
+

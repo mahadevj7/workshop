@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: classroom-portal
+  labels:
+    app: classroom-portal
+    app.kubernetes.io/part-of: classroom-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: classroom-portal
+  template:
+    metadata:
+      labels:
+        app: classroom-portal
+    spec:
+      containers:
+        - name: classroom-portal
+          image: image-registry.openshift-image-registry.svc:5000/classroom-portal:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PORT
+              value: "8080"
+            - name: NODE_ENV
+              value: "production"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: classroom-secrets
+                  key: MONGO_URI
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: classroom-secrets
+                  key: JWT_SECRET
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20

@@ -1,0 +1,223 @@
+.exams-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.exams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.exam-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.exam-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.exam-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.exam-type-tag {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid #bfdbfe;
+}
+
+.exam-marks-tag {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.exam-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.exam-subject-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 1rem;
+}
+
+.exam-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #f8fafc;
+  padding: 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  font-size: 0.825rem;
+  color: #475569;
+}
+
+.exam-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-icon {
+  color: #64748b;
+}
+
+.exam-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Report Card Styling */
+.report-card-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.report-summary-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.summary-stat-box {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #f1f5f9;
+  padding-right: 1rem;
+}
+
+.summary-stat-box:last-child {
+  border-right: none;
+}
+
+.stat-label {
+  font-size: 0.775rem;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stat-highlight {
+  color: #16a34a;
+}
+
+.marks-highlight {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.grade-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.grade-A\+,
+.grade-A {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.grade-B {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.grade-C {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.grade-D,
+.grade-F {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.report-header-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.transcript-meta {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@media print {
+  .navbar-header,
+  .tabs-nav,
+  .page-header,
+  .print-btn,
+  .status-banner {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+  }
+
+  .report-summary-bar {
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+  }
+
+  .table-container {
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+  }
+}
+
