@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
@@ -30,11 +31,15 @@ app.use('/api/pta', require('./routes/ptaRoutes'));
 app.use('/api/remarks', require('./routes/remarkRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 
-// Health check endpoint
+// Health check endpoint with live database status
 app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const stateLabels = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
   res.json({
     status: 'OK',
-    message: 'Classroom Management API is operational',
+    database: stateLabels[dbState] || 'Unknown',
+    readyState: dbState,
+    message: dbState === 1 ? 'Classroom Management API & Database are operational' : 'Database connection pending or disconnected',
     timestamp: new Date().toISOString()
   });
 });
